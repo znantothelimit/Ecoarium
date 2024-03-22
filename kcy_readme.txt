@@ -3,7 +3,7 @@
 * https://drive.google.com/file/d/1_9Qs4JvjStvpdDkrcXUr7qSiT8lvPp4X/view?
 usp=sharing
 * Python 3.11.8
-* 파이썬 패키지 numpy, matplotlib, opencv-python, scikit-learn, tensorflow 설치
+* 파이썬 패키지 numpy, matplotlib, opencv-python, scikit-learn, tensorflow, albumentations설치
 * 
 ***************************************************************************************
 
