@@ -1,0 +1,190 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=0.8">
+    <title>Ecoarium </title>
+    <link rel="stylesheet" href="public/inventory.css">
+</head>
+<body>
+    <div class="header">
+        <div class = "layout">
+            <a id= "logo" href="/">Ecoarium</a>
+            <a id = "text"> - 마이페이지</a>
+            <a id= "mypage" href="/mypage">마이페이지</a>
+            <div id = "line"></div>
+            <a id= "store" href="/store">스토어</a>
+        </div>
+    </div>
+    <div class="main">
+        <div class = "container-name">프로필</div>
+        <div class = "container">
+            <div id = "area1">
+                <div id = "nickname"></div>  
+                <div id = "user-id"></div>
+                <a href="/auth/logout"><button class = "logout-btn">로그아웃</button></a>
+                <button class = "logout-btn">프로필 수정</button>
+            </div>
+            <div id = "area2"></div> 
+            <div id = "area3">
+                <button id = "stamp-btn" onclick="window.location.href='/mypage'">스탬프 내역</button>
+                <div id = "btn-line"></div>
+                <button id="inventory-btn" onclick="window.location.href='/inventory'">상품함</button>
+            </div>
+        </div>
+        <div class = "container-name">상품함</div>
+        <div id = "buttons">
+            <button id = "available-btn" class = "filter-clicked-btn">사용가능</button>
+            <button id = "completed-btn" class = "filter-btn">사용완료</button>
+        </div>
+        <div id = "inventory-container" class = "container">
+        </div>
+    </div>
+    <script>
+        const area1 = document.getElementById("area1");
+        const area2 = document.getElementById("area2");
+        const area3 = document.getElementById("area3");
+        const nick = document.getElementById("nickname");
+        const userid = document.getElementById("user-id");
+        const inventory_container = document.getElementById("inventory-container");
+        const available_btn = document.getElementById("available-btn");
+        const completed_btn = document.getElementById("completed-btn");
+
+        //프로필 불러오기
+        fetch('/mypage/load-profile')
+            .then(response => response.json())
+            .then(data => {
+                const user = data.user;
+                const points = data.points;
+                nick.innerText = user.nickname + "님"
+                userid.innerText = user.user_id
+                area2.innerText = points + "개의 스탬프를 모았어요.";
+                //관리자 버튼 생성
+                if (user.admin == 1){
+                    const admin = document.createElement('button');
+                    admin.classList.add('logout-btn')
+                    admin.innerText = "관리자 페이지"
+                    area1.appendChild(admin);
+                    admin.addEventListener('click', async () => {
+                        try {
+                            window.location.href = '/admin';
+                        } catch (error) {
+                            console.error(error);
+                        }
+                    });
+                }
+            })
+            .catch(error => {
+                console.error('Error:', error);
+            });
+
+
+
+        //사용가능 생성 함수
+        function available (available_items, items){
+            inventory_container.removeChild(inventory_container.firstChild);
+            const items_div = document.createElement('div');
+            items_div.classList.add('items');
+            inventory_container.appendChild(items_div);
+            available_items.forEach(each => {
+                //상품 종류
+                const kind = items.find(model => model.id == each.itemId);
+                //상품 생성
+                const item = document.createElement('div');
+                item.classList.add('item');
+                items_div.appendChild(item);
+                //이미지
+                const item_img = document.createElement('img');
+                item_img.src = "uploads/" + kind.img.slice(5);
+                item_img.alt = kind.name;
+                item.appendChild(item_img);
+                //상품명
+                const name = document.createElement('div');
+                name.classList.add('item-name');
+                name.innerText = kind.name;
+                item.appendChild(name);
+                //교환날짜/시간
+                const time = document.createElement('div');
+                time.classList.add('exchanged-time');
+                time.innerText = each.createdAt.slice(0, 10) +" "+ each.createdAt.slice(11, 16);
+                item.appendChild(time);
+            });
+        };
+
+        //사용완료 생성 함수
+        function completed (completed_items, items){
+            inventory_container.removeChild(inventory_container.firstChild);
+            const items_div = document.createElement('div');
+            items_div.classList.add('items');
+            inventory_container.appendChild(items_div);
+            completed_items.forEach(each => {
+                //상품 종류
+                const kind = items.find(model => model.id == each.itemId);
+                //상품 생성
+                const item = document.createElement('div');
+                item.classList.add('item');
+                items_div.appendChild(item);
+                //이미지
+                const item_img = document.createElement('img');
+                item_img.src = "uploads/" + kind.img.slice(5);
+                item_img.alt = kind.name;
+                item.appendChild(item_img);
+                //상품명
+                const name = document.createElement('div');
+                name.classList.add('item-name');
+                name.innerText = kind.name;
+                item.appendChild(name);
+                //교환날짜/시간
+                const time = document.createElement('div');
+                time.classList.add('exchanged-time');
+                time.innerText = each.createdAt.slice(0, 10) +" "+ each.createdAt.slice(11, 16);
+                item.appendChild(time);
+            });
+        };
+
+        //사용가능 불러오기
+        fetch('/inventory/available')
+            .then(response => response.json())
+            .then(data => {
+                available(data.available_items, data.items);
+            })
+            .catch(error => {
+                console.error('Error:', error);
+            });
+
+        //사용가능 버튼
+        available_btn.addEventListener('click', async () => {
+            available_btn.classList.remove("filter-btn");
+            available_btn.classList.add("filter-clicked-btn");
+            completed_btn.classList.remove("filter-clicked-btn");
+            completed_btn.classList.add("filter-btn");
+            fetch('/inventory/available')
+                .then(response => response.json())
+                .then(data => {
+                    available(data.available_items, data.items);
+                })
+                .catch(error => {
+                    console.error('Error:', error);
+                });
+        });
+
+        //사용완료 버튼
+        completed_btn.addEventListener('click', async () => {
+            available_btn.classList.remove("filter-clicked-btn");
+            available_btn.classList.add("filter-btn");
+            completed_btn.classList.remove("filter-btn");
+            completed_btn.classList.add("filter-clicked-btn");
+            fetch('/inventory/completed')
+                .then(response => response.json())
+                .then(data => {
+                    completed(data.completed_items, data.items);
+                })
+                .catch(error => {
+                    console.error('Error:', error);
+                });
+        });
+
+
+    </script>
+</body>
+</html>
