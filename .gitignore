@@ -1,7 +1,9 @@
 # Created by https://www.toptal.com/developers/gitignore/api/visualstudiocode,node,c
 # Edit at https://www.toptal.com/developers/gitignore?templates=visualstudiocode,node,c
 
-passwd.txt
+# ecoarium
+Data_PlasticCup/
+Data_PlasticCup.7z
 
 ### C ###
 # Prerequisites
