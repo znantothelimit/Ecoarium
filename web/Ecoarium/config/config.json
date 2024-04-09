@@ -1,9 +1,9 @@
 {
     "development": {
-      "username": "oracle12",
-      "password": "Mysql123!@#",
+      "username": "root",
+      "password": "1234",
       "database": "ecoarium",
-      "host": "127.0.0.1",
+      "host": "localhost",
       "dialect": "mysql"
     },
     "test": {

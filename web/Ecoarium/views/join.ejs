@@ -14,7 +14,7 @@
 <body>
     <div class="login-container">
         <form action="/auth/join" method="post">
-            <input class="typing-container" type="text" name="user_id" placeholder="아이디" required autofocus>
+            <input class="typing-container" type="text" name="username" placeholder="아이디" required autofocus>
             <input class="typing-container" type="password" name="password" placeholder="비밀번호">
             <input class="typing-container" type="password" name="password_verification" placeholder="비밀번호 확인">
             <% if (typeof messages !== 'undefined' && messages.joinError) { %>

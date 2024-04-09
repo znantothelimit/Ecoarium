@@ -48,19 +48,24 @@ app.get('/', (req, res) => {
 app.get('/join', isNotLoggedIn, (req, res) => {
     res.render('join');
 });
-app.get('/store', (req, res) => {
+app.get('/store', isLoggedIn, (req, res) => {
     res.sendFile(__dirname + '/views/store.html');
 });
-app.get('/mypage', (req, res) => {
+app.get('/mypage', isLoggedIn, (req, res) => {
   res.sendFile(__dirname + '/views/mypage.html');
 });
-app.get('/inventory', (req, res) => {
+app.get('/inventory', isLoggedIn, (req, res) => {
   res.sendFile(__dirname + '/views/inventory.html');
 });
-app.get('/admin', (req, res) => {
+app.get('/admin', isLoggedIn, (req, res) => {
   if (req.user.admin == 1) res.sendFile(__dirname + '/views/admin.html');
   else res.redirect('/');
 });
+app.get('/profileModification', isLoggedIn, (req, res) => {
+  res.redirect('/');
+});
+
+
 app.use(express.static(__dirname));
 
 app.use('/auth', authRouter);
