@@ -17,7 +17,7 @@ module.exports = (sequelize, DataTypes) => (
         type: DataTypes.INTEGER(1),
         allowNull: true,
       },
-      barcode:{
+      QRcode:{
         type: DataTypes.BIGINT,
         allowNull: true,
       },

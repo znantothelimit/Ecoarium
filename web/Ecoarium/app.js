@@ -62,7 +62,7 @@ app.get('/admin', isLoggedIn, (req, res) => {
   else res.redirect('/');
 });
 app.get('/profileModification', isLoggedIn, (req, res) => {
-  res.redirect('/');
+  res.sendFile(__dirname + '/views/profileModification.html');
 });
 
 

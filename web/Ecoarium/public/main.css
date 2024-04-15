@@ -73,8 +73,8 @@ body {
     padding-bottom: 60px;
     border-bottom: 1px solid #e7e7e7;
 }
-#barcode_button{
-    background-image: url('icons/barcode.jpg');
+#QRcode_button{
+    background-image: url('icons/QRcode.jpg');
     background-repeat: no-repeat;
     margin-top: 2px;
     padding: 20px;
@@ -124,6 +124,6 @@ body {
 .stamp_img{
     margin: 10px;
 }
-#barcode{
+#QRcode{
     margin: 100px 0;
 }

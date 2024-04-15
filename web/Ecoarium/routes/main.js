@@ -41,13 +41,13 @@ router.get('/createpoint', isLoggedIn, async (req,res, next) => {
 });
 
 //바코드 번호 생성
-router.get('/createbarcode', isLoggedIn, async (req,res, next) => {
+router.get('/createQR', isLoggedIn, async (req,res, next) => {
     try{
         const year = req.user.createdAt.getFullYear() % 100;
         const id = req.user.id;
-        const number = parseInt((year*10000 + id%10000) * 10000000000 + Math.random()*10000000000);
+        const number = parseInt(id * 10000000000 + Math.random()*10000000000);
         await db.User.update({
-            barcode: number,
+            qrcode: number,
             }, {
                 where: {
                     Id: req.user.id,
