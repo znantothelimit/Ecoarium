@@ -112,7 +112,7 @@ body {
     background-image: url('icons/new.png');
     background-repeat: no-repeat;
     background-position: 0px 0px;
-    margin: 53px 41px 54px 41px;
+    margin: 115px 70px 115px 70px;
     padding: 50px 50px 50px 50px;
     background-color: #ffffff;
     border: 1px solid #dfdfdf;
@@ -125,7 +125,7 @@ body {
 }
 .new-item{
     margin: 10px 10px 10px 10px;
-    padding: 10px;
+    padding: 50px 39px;
     background-color: #ffffff;
     border: 1px solid #dfdfdf;
     border-radius: 13px;

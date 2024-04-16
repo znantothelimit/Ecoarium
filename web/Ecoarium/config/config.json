@@ -1,6 +1,6 @@
 {
     "development": {
-      "username": "root",
+      "username": "local",
       "password": "1234",
       "database": "ecoarium",
       "host": "localhost",

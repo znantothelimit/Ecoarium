@@ -18,7 +18,7 @@ module.exports = (sequelize, DataTypes) => (
         allowNull: true,
       },
       QRcode:{
-        type: DataTypes.BIGINT,
+        type: DataTypes.STRING(40),
         allowNull: true,
       },
       admin:{

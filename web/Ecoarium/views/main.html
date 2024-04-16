@@ -81,8 +81,8 @@
                 fetch('/main/createQR')
                     .then(response => response.json())
                     .then(data => {
-                        const number = data;
-                        QR.makeCode(number.toString());
+                        const value = data;
+                        QR.makeCode(value);
                         area2.appendChild(qrcode);
                     })
                     .catch(error => {

@@ -43,17 +43,18 @@ router.get('/createpoint', isLoggedIn, async (req,res, next) => {
 //바코드 번호 생성
 router.get('/createQR', isLoggedIn, async (req,res, next) => {
     try{
-        const year = req.user.createdAt.getFullYear() % 100;
         const id = req.user.id;
-        const number = parseInt(id * 10000000000 + Math.random()*10000000000);
+        let now = new Date(); // 현재 날짜와 시간을 나타내는 Date 객체 생성
+        let timestamp = now.getTime(); // 현재 시간의 타임스탬프를 밀리초 단위로 가져옴
+        const value = id.toString() + timestamp.toString() + parseInt(Math.random()*10000000000);
         await db.User.update({
-            qrcode: number,
+            QRcode: value,
             }, {
                 where: {
                     Id: req.user.id,
                 }
         });
-        res.json(number);
+        res.json(value);
     } catch (error) {
         console.error(error);
         return next(error);
