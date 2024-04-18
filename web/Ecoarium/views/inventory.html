@@ -23,7 +23,7 @@
                 <div id = "nickname"></div>  
                 <div id = "user-id"></div>
                 <a href="/auth/logout"><button class = "logout-btn">로그아웃</button></a>
-                <button class = "logout-btn">프로필 수정</button>
+                <a href="/profileModification"><button class = "logout-btn">프로필 수정</button></a>
             </div>
             <div id = "area2"></div> 
             <div id = "area3">
@@ -51,13 +51,13 @@
         const completed_btn = document.getElementById("completed-btn");
 
         //프로필 불러오기
-        fetch('/mypage/load-profile')
+        fetch('/inventory/load-profile')
             .then(response => response.json())
             .then(data => {
                 const user = data.user;
                 const points = data.points;
                 nick.innerText = user.nickname + "님"
-                userid.innerText = user.user_id
+                userid.innerText = user.username;
                 area2.innerText = points + "개의 스탬프를 모았어요.";
                 //관리자 버튼 생성
                 if (user.admin == 1){

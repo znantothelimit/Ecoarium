@@ -9,12 +9,12 @@ const router = express.Router();
 
 //회원가입 라우터
 router.post('/join', isNotLoggedIn, async (req, res, next) => {
-    const { user_id, password, password_verification, nickname } = req.body;
+    const { username, password, password_verification, nickname } = req.body;
     try {
-        const exUser = await User.findOne({ where: { user_id } });
+        const exUser = await User.findOne({ where: { username } });
         if (exUser) {
-            req.flash('joinError', '이미 가입된 이메일입니다.');
-            res.locals.flashMessage = '이미 가입된 이메일입니다.';
+            req.flash('joinError', '이미 가입된 아이디입니다.');
+            res.locals.flashMessage = '이미 가입된 아이디입니다.';
             return res.redirect('/join');
         }
         if (password != password_verification) {
@@ -30,7 +30,7 @@ router.post('/join', isNotLoggedIn, async (req, res, next) => {
         //비밀번호와 api키 암호화
         const hash = await bcrypt.hash(password, 12);
         await User.create({
-            user_id,
+            username,
             password: hash,
             nickname,
             points: 0
@@ -41,9 +41,38 @@ router.post('/join', isNotLoggedIn, async (req, res, next) => {
         return next(error);
     }
 });
+//회원가입 라우터
+router.post('/joinMobile', isNotLoggedIn, async (req, res, next) => {
+  const { username, password, password_verification, nickname } = req.body;
+  try {
+      const exUser = await User.findOne({ where: { username } });
+      if (exUser) {
+          return res.json("이미 가입된 아이디입니다.");
+      }
+      if (password != password_verification) {
+          return res.json("비밀번호가 일치하지 않습니다.");
+      }
+      if (!password) {
+          return res.json("비밀번호를 입력해 주세요.");
+      }
+      //비밀번호와 api키 암호화
+      const hash = await bcrypt.hash(password, 12);
+      await User.create({
+          username,
+          password: hash,
+          nickname,
+          points: 0
+      });
+      return res.json(true);
+  } catch (error) {
+      console.error(error);
+      return next(error);
+  }
+});
 
 //로그인 라우터
 router.post('/login', isNotLoggedIn, (req, res, next) => {
+  console.log(1)
     passport.authenticate('local', (authError, user, info) => {
         if (authError) {
             console.error(authError);
@@ -62,9 +91,30 @@ router.post('/login', isNotLoggedIn, (req, res, next) => {
         });
     })(req, res, next); 
 });
+//로그인 라우터(어플)
+router.post('/loginMobile', isNotLoggedIn, (req, res, next) => {
+  console.log(1)
+    passport.authenticate('local', (authError, user, info) => {
+        if (authError) {
+            console.error(authError);
+            return next(authError);
+        }
+        if (!user) {//실패
+            return res.json(info.message);
+        }
+        return req.login(user, (loginError) => {
+            if (loginError) {
+                console.error(loginError);
+                return next(loginError);
+            }//성공
+            return res.json(true);
+        });
+    })(req, res, next); 
+});
 
 //로그아웃 라우터
 router.get('/logout', isLoggedIn, (req, res, next) => {
+  console.log(2)
     req.logout((err) => {
         if (err) {
             console.error(err);
@@ -121,7 +171,7 @@ router.post('/change-pw', isLoggedIn, async (req, res, next) => {
         return res.redirect('/withdrawal');
       }
       await db.User.update({
-        user_id:null,
+        username:null,
         password:null,
         GptApiKey:null,
         GptApiIv:null,

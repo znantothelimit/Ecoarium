@@ -18,7 +18,7 @@
     <div class="main">
         <div id = "container">
             <div class = "area1" id = "area1">
-                <button id = "barcode_button"></button>
+                <button id = "QRcode_button"></button>
                 <div id = "text">내 스탬프</div>
                 <div id = "mypoint"></div>
             </div>
@@ -28,7 +28,8 @@
         </div>
         <a href="/main/createpoint"><button id="logout-button">스탬프추가</button></a>
     </div>
-    <script src="https://cdn.jsdelivr.net/npm/jsbarcode@3.11.3/dist/barcodes/JsBarcode.code128.min.js"></script>
+    <script type="text/javascript" src="views/qr/jquery.min.js"></script>
+    <script type="text/javascript" src="views/qr/qrcode.js"></script>
     <script>
         const area1 = document.getElementById('area1');
         const text = document.getElementById('text');
@@ -55,27 +56,34 @@
                 console.error('Error:', error);
             });
         
-        const barcode_button = document.getElementById('barcode_button');
-        const barcode_cancel_button = document.createElement('button');
-        barcode_cancel_button.classList.add('cancel_button');
+        const QRcode_button = document.getElementById('QRcode_button');
+        const QRcode_cancel_button = document.createElement('button');
+        QRcode_cancel_button.classList.add('cancel_button');
 
         //바코드 생성
-        const barcode = document.createElementNS('http://www.w3.org/2000/svg', 'svg');
-        barcode.setAttribute('id', 'barcode');
+        const qrcode = document.createElement('div');
+        qrcode.setAttribute('id', 'QRcode');
+        var QR = new QRCode(qrcode, {
+            width: 256,
+            height: 256,
+            colorDark : "#000000",
+            colorLight : "#ffffff",
+            correctLevel : QRCode.CorrectLevel.H
+        });
 
-        barcode_button.addEventListener('click', async () => {
+        QRcode_button.addEventListener('click', async () => {
             try {
-                barcode_button.remove();
+                QRcode_button.remove();
                 text.innerText= "스탬프 적립";
                 mypoint.remove();
                 stamp_container.remove();
-                area1.insertBefore(barcode_cancel_button, area1.firstChild);
-                fetch('/main/createbarcode')
+                area1.insertBefore(QRcode_cancel_button, area1.firstChild);
+                fetch('/main/createQR')
                     .then(response => response.json())
                     .then(data => {
-                        const number = data;
-                        area2.appendChild(barcode);
-                        JsBarcode("#barcode", number);
+                        const value = data;
+                        QR.makeCode(value);
+                        area2.appendChild(qrcode);
                     })
                     .catch(error => {
                         console.error('Error:', error);
@@ -85,14 +93,14 @@
             }
         });
 
-        barcode_cancel_button.addEventListener('click', async () => {
+        QRcode_cancel_button.addEventListener('click', async () => {
             try {
-                area1.insertBefore(barcode_button, area1.firstChild);
+                area1.insertBefore(QRcode_button, area1.firstChild);
                 text.innerText= "내 스탬프";
-                barcode_cancel_button.remove();
+                QRcode_cancel_button.remove();
                 area1.appendChild(mypoint);
                 area2.appendChild(stamp_container);
-                barcode.remove();
+                qrcode.remove();
             } catch (error) {
                 console.error(error);
             }

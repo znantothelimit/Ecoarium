@@ -14,7 +14,7 @@
 <body>
     <div class="login-container">
         <form action="/auth/login" method="post">
-            <input class="typing-container" type="text" name="user_id" placeholder="아이디" required autofocus>
+            <input class="typing-container" type="text" name="username" placeholder="아이디" required autofocus>
             <input class="typing-container" type="password" name="password" placeholder="비밀번호">
             <% if (typeof messages !== 'undefined' && messages.loginError) { %>
                 <div class="error-message"><%= messages.loginError %></div>
