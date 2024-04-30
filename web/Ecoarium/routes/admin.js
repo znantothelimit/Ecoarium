@@ -45,4 +45,19 @@ router.post('/newitem', isLoggedIn, upload.single('img'), async (req, res) => {
     }
 });
 
+//파이썬 연결 테스트
+router.post('/test', async (req, res, next) => {
+    const {QRCode, key} = req.body;
+    console.log(key);
+    if (key != 2019) return;
+    try{
+        console.log(QRCode);
+        res.json(true);
+    } catch (error) {
+        console.error(error);
+        return next(error);
+    }
+});
+
+
 module.exports = router;

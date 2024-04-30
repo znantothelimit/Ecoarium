@@ -42,7 +42,7 @@
         const userId = document.getElementById("user-id");
 
         //프로필 불러오기
-        fetch('/profileModification/load-profile')
+        fetch('/auth/loadProfile')
             .then(response => response.json())
             .then(data => {
                 const user = data;
@@ -93,7 +93,7 @@
             try {
                 if (confirm("정말로 닉네임을 수정하시겠습니까?")) {
                     const nickname = nickname_input.value;
-                    await fetch('/profileModification/modify', {
+                    await fetch('/auth/modify', {
                         method: 'PUT',
                         headers: {
                             'Content-Type': 'application/json'
