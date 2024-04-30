@@ -12,6 +12,7 @@ const storeRouter = require('./routes/store');
 const mypageRouter = require('./routes/mypage');
 const inventoryRouter = require('./routes/inventory');
 const adminRouter = require('./routes/admin');
+const profileModificationRouter = require('./routes/profileModification');
 const passportConfig = require('./passport');
 const { sequelize } = require('./models');
 const { isLoggedIn, isNotLoggedIn } = require('./routes/middlewares');
@@ -64,7 +65,12 @@ app.get('/admin', isLoggedIn, (req, res) => {
 app.get('/profileModification', isLoggedIn, (req, res) => {
   res.sendFile(__dirname + '/views/profileModification.html');
 });
-
+app.get('/changepw', isLoggedIn, (req, res) => {
+  res.render('changepw');
+});
+app.get('/withdrawal', isLoggedIn, (req, res) => {
+  res.render('withdrawal');
+});
 
 app.use(express.static(__dirname));
 
@@ -74,6 +80,7 @@ app.use('/store', storeRouter);
 app.use('/mypage', mypageRouter);
 app.use('/inventory', inventoryRouter);
 app.use('/admin', adminRouter);
+app.use('/profileModification', profileModificationRouter);
 
 //에러처리
 app.use((req, res, next) => {

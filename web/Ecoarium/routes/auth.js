@@ -153,7 +153,13 @@ router.post('/change-pw', isLoggedIn, async (req, res, next) => {
           id: req.user.id
         },
       });
-      return res.redirect('/mypage');
+      req.session.destroy((err) => {
+        if (err) {
+            console.error(err);
+            return next(err);
+        }
+        res.redirect('/');
+      });
     } catch (error) {
       console.error(error);
       return next(error);
@@ -173,8 +179,7 @@ router.post('/change-pw', isLoggedIn, async (req, res, next) => {
       await db.User.update({
         username:null,
         password:null,
-        GptApiKey:null,
-        GptApiIv:null,
+        nickname:null,
       }, {
         where: {
           id: req.user.id
@@ -183,16 +188,6 @@ router.post('/change-pw', isLoggedIn, async (req, res, next) => {
       await db.User.destroy({ 
         where: {
           Id: req.user.id
-        },
-      });
-      await db.Chatlog.destroy({ 
-        where: {
-          userId: req.user.id
-        },
-      });
-      await db.Reminder.destroy({ 
-        where: {
-          userId: req.user.id
         },
       });
       res.redirect('/');
