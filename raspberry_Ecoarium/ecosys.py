@@ -7,23 +7,51 @@ from requests.exceptions import Timeout
 from imutils.video import VideoStream
 from pyzbar import pyzbar
 
-def send_data_to_server(qrcode):
+def send_qr_to_server(qrcode):
     # Function to send data to server
-    url = "http://192.168.34.42:8000/admin/test"
+    url = "http://222.101.3.165:8000/jt/QRCode"
     print(qrcode + '-' + url)
     try:
-        data = {'QRCode': qrcode, 'key': 2019}  ################Example data
+        data = {'QRCode': qrcode, 'key': 'q1w2e3'}  ################Example data
         response = requests.post(url, json=data, timeout=10)  # Set timeout to 10 seconds
         if response.status_code == 200:
             print("[INFO] Data sent successfully to the server.", response.status_code)
             result = response.json()
             print(result)
+            return response
         else:
             print("[INFO] Failed to send data to the server. Status code:", response.status_code)
+            return response  # Return response even if status code is not 200
     except Timeout:
         print("[ERROR] Connection to the server timed out. Please try again later.")
     except requests.exceptions.RequestException as e:
         print("[ERROR] An error occurred while sending data to the server:", e)
+
+def show_login_success_window(nickname):
+    # Function to show login success window
+    login_success_window = tk.Toplevel()
+    login_success_window.title("Login Success")
+    
+    # Display welcome message with nickname
+    welcome_label = tk.Label(login_success_window, text="Welcome, " + nickname + "!", font=("Helvetica", 16))
+    welcome_label.pack(pady=10)
+
+    # Create and place Close button
+    close_button = tk.Button(login_success_window, text="Close", command=login_success_window.destroy, width=20, height=2)
+    close_button.pack(pady=10)
+
+def show_login_error_window(message):
+    # Function to show login error window
+    login_error_window = tk.Toplevel()
+    login_error_window.title("Login Error")
+    
+    # Display error message
+    error_label = tk.Label(login_error_window, text=message, font=("Helvetica", 16))
+    error_label.pack(pady=10)
+
+    # Create and place Close button
+    close_button = tk.Button(login_error_window, text="Close", command=login_error_window.destroy, width=20, height=2)
+    close_button.pack(pady=10)
 
 def qr_login():
     # Function to handle QR code login
@@ -54,7 +82,20 @@ def qr_login():
                 # Print barcode data to console
                 print("[INFO] Barcode Data:", barcodeData)
                 # Send barcode data to the server
-                send_data_to_server(barcodeData)
+                response = send_qr_to_server(barcodeData)
+                if response:  # Check if response is not None
+                    if response.text == '1':
+                        show_login_error_window("[ERROR CODE 1]User identification error")
+                    elif response.text == '2':
+                        show_login_error_window("[ERROR CODE 2]QR code mismatch.")
+                    elif response.text == '3':
+                        show_login_error_window("[ERROR CODE 3]Login timeout.")
+                    else:
+                        try:
+                            user_data = response.json()  # Parse JSON response
+                            show_login_success_window(user_data['nickname'])  # Show login success window with nickname
+                        except ValueError:
+                            print("[ERROR] Invalid JSON format received from the server.")
                 # Clean up
                 print("[INFO] Cleaning up...")
                 cv2.destroyAllWindows()
@@ -72,7 +113,6 @@ def qr_login():
             cv2.destroyAllWindows()
             vs.stop()
             return
-
 
 def main():
     # Create main window
