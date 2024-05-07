@@ -7,7 +7,7 @@ const { exec } = require('child_process');
 const app = express();
 const port = 3000;
 
-const uploadDir = path.join(__dirname, 'uploads');
+const uploadDir = path.join(__dirname, 'images');
 if (!fs.existsSync(uploadDir)){
     fs.mkdirSync(uploadDir);
 }
@@ -37,7 +37,7 @@ app.post('/upload', upload.single('image'), (req, res) => {
   const activateEnvCommand = 'conda activate ENV00';
 
   // 파이썬 파일 실행 명령어 (가상 환경 활성화 후 실행)
-  const pythonScriptCommand = `python model.py uploads/"${imageName}"`;
+  const pythonScriptCommand = `python model.py images/"${imageName}"`;
 
   // 가상 환경 활성화 후 파이썬 스크립트 실행
   exec(`${activateEnvCommand} && ${pythonScriptCommand}`, (error, stdout, stderr) => {
@@ -61,7 +61,6 @@ app.post('/upload', upload.single('image'), (req, res) => {
     }
   });
 });
-
 
 app.listen(port, () => {
   console.log(`Server is running at http://localhost:${port}`);
