@@ -36,7 +36,7 @@ app.post('/upload', upload.single('image'), (req, res) => {
   // 가상 환경 활성화 명령어
   const activateEnvCommand = 'conda activate ENV00';
 
-  // 파이썬 파일 실행 명령어 (가상 환경 활성화 후 실행)
+  // 파이썬 파일 실행 명령어
   const pythonScriptCommand = `python model.py images/"${imageName}"`;
 
   // 가상 환경 활성화 후 파이썬 스크립트 실행
