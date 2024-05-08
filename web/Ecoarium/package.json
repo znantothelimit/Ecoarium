@@ -20,6 +20,6 @@
     "mysql2": "^3.6.5",
     "passport": "^0.7.0",
     "passport-local": "^1.0.0",
-    "sequelize": "^6.37.3"
+    "sequelize": "^6.35.1"
   }
 }

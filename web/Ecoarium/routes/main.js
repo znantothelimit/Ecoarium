@@ -17,6 +17,9 @@ router.get('/loadpoint', isLoggedIn, async (req,res, next) => {
 //포인트 생성 (디버깅용 임시)
 router.get('/createpoint', isLoggedIn, async (req,res, next) => {
     try{
+        const user = await db.User.findOne({ where : {Id: "2"} });
+        console.log(user)
+
         //포인트 + 1
         const points = req.user.points
         await db.User.update({

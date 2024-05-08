@@ -130,6 +130,37 @@ router.get('/logout', isLoggedIn, (req, res, next) => {
     });
 });
 
+//--------------------프로필 수정-----------------------------
+
+//프로필 불러오기
+router.get('/loadProfile', isLoggedIn, async (req,res, next) => {
+  try{
+      const user = req.user;
+      res.json(user);
+  } catch (error) {
+      console.error(error);
+      return next(error);
+  }
+});
+
+//닉네임 수정
+router.put('/modify', isLoggedIn, async (req, res, next) => {
+  try {
+    await db.User.update({
+      nickname: req.body.nickname,
+    }, {
+      where: {
+        id:req.user.id,
+      }
+    });
+    res.redirect('/');
+  } catch (error) {
+    console.error(error);
+    next(error);
+  }
+});
+
+
 //비밀번호 변경 라우터
 router.post('/change-pw', isLoggedIn, async (req, res, next) => {
     const { present_pw, new_pw, new_pw_verification } = req.body;
@@ -153,12 +184,52 @@ router.post('/change-pw', isLoggedIn, async (req, res, next) => {
           id: req.user.id
         },
       });
-      return res.redirect('/mypage');
+      req.session.destroy((err) => {
+        if (err) {
+            console.error(err);
+            return next(err);
+        }
+        res.redirect('/');
+      });
     } catch (error) {
       console.error(error);
       return next(error);
     }
   });
+
+//비밀번호 변경 라우터
+router.post('/changePwMobile', isLoggedIn, async (req, res, next) => {
+  const { present_pw, new_pw, new_pw_verification } = req.body;
+  try {
+    const hash = await bcrypt.hash(new_pw, 12);
+    if (new_pw != new_pw_verification) {
+      //새 비밀번호와 비밀번호 확인이 불일치
+      return res.json(1);
+    }
+    const result = await bcrypt.compare(present_pw, req.user.password);
+    if (!result) {
+      //현재 비밀번호 불일치
+      return res.json(2);
+    }
+    await db.User.update({
+      password: hash
+    }, {
+      where: {
+        id: req.user.id
+      },
+    });
+    req.session.destroy((err) => {
+      if (err) {
+          console.error(err);
+          return next(err);
+      }
+      res.json(3);
+    });
+  } catch (error) {
+    console.error(error);
+    return next(error);
+  }
+});
   
   //계정 삭제 라우터
   router.post('/withdrawal', isLoggedIn, async (req, res, next) => {
@@ -173,8 +244,7 @@ router.post('/change-pw', isLoggedIn, async (req, res, next) => {
       await db.User.update({
         username:null,
         password:null,
-        GptApiKey:null,
-        GptApiIv:null,
+        nickname:null,
       }, {
         where: {
           id: req.user.id
@@ -185,17 +255,49 @@ router.post('/change-pw', isLoggedIn, async (req, res, next) => {
           Id: req.user.id
         },
       });
-      await db.Chatlog.destroy({ 
+      req.session.destroy((err) => {
+        if (err) {
+            console.error(err);
+            return next(err);
+        }
+        res.redirect('/');
+      });
+    } catch (error) {
+      console.error(error);
+      next(error);
+    }
+  });
+
+  //계정 삭제 라우터
+  router.post('/withdrawalMobile', isLoggedIn, async (req, res, next) => {
+    const { present_pw } = req.body;
+    try {
+      const result = await bcrypt.compare(present_pw, req.user.password);
+      if (!result) {
+        //비밀번호 불일치
+        return res.json(false);
+      }
+      await db.User.update({
+        username:null,
+        password:null,
+        nickname:null,
+      }, {
         where: {
-          userId: req.user.id
+          id: req.user.id
         },
       });
-      await db.Reminder.destroy({ 
+      await db.User.destroy({ 
         where: {
-          userId: req.user.id
+          Id: req.user.id
         },
       });
-      res.redirect('/');
+      req.session.destroy((err) => {
+        if (err) {
+            console.error(err);
+            return next(err);
+        }
+        res.json(true);
+      });
     } catch (error) {
       console.error(error);
       next(error);
