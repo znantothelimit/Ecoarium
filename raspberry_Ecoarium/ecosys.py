@@ -9,7 +9,7 @@ from imutils.video import VideoStream
 from pyzbar import pyzbar
 
 # Location INFO
-location = "jt_0"
+location = "JT_0"
 
 # Server INFO
 server_addr = "http://172.20.10.10:8000"
@@ -64,23 +64,59 @@ def req_image(img_path):
         return None
     
 
-# DEF: MSG WINDOW
 def show_msg_window(message, callback=None):
-    # Function to show login error window
+    # Create the message window
     msg_window = tk.Toplevel()
     msg_window.title("Message")
     
-    # Display error message
-    error_label = tk.Label(msg_window, text=message, font=("Helvetica", 16))
-    error_label.pack(pady=10)
+    # Create a Label to measure the text width
+    temp_label = tk.Label(msg_window, text=message, font=("Helvetica", 24))
+    temp_label.pack()
 
-    # Create and place Close button
+    # Update the window to get the correct size of the text
+    msg_window.update_idletasks()
+    
+    # Get the size of the text
+    text_width = temp_label.winfo_width()
+    text_height = temp_label.winfo_height()
+    
+    # Destroy the temporary label
+    temp_label.destroy()
+
+    # Calculate the window size based on the text size
+    window_width = max(text_width + 40, 800)  # Add some padding
+    window_height = max(text_height + 80, 480)  # Add some padding for the button
+
+    text_label = tk.Label(msg_window, text=message, font=("Helvetica", 24), wraplength=window_width - 40)
+    text_label.place(relx=0.5, rely=0.3, anchor="center")
+
     if callback:
-        # callback함수를 입력했을 경우, close 버튼을 누르면 callback 함수 실행
-        close_button = tk.Button(msg_window, text="Close", command=lambda: on_window_close(msg_window, callback), width=20, height=2)
+        # If a callback function is provided, execute it when the close button is clicked
+        close_button = tk.Button(msg_window, text="OK", command=lambda: on_window_close(msg_window, callback), width=20, height=2, font=("Helvetica", 14))
     else:
-        close_button = tk.Button(msg_window, text="Close", command=msg_window.destroy, width=20, height=2)
-    close_button.pack(pady=10)
+        close_button = tk.Button(msg_window, text="OK", command=msg_window.destroy, width=20, height=2, font=("Helvetica", 14))
+    close_button.place(relx=0.5, rely=0.7, anchor="center")  # Adjusted y-position for the button
+
+    # Get the screen size
+    screen_width = 800
+    screen_height = 480
+
+    # Calculate the position for the window to be centered
+    position_x = (screen_width // 2) - (window_width // 2)
+    position_y = (screen_height // 2) - (window_height // 2)
+
+    # Set the geometry of the message window
+    msg_window.geometry(f"{window_width}x{window_height}+{position_x}+{position_y}")
+
+    # Make sure the window is above the main window
+    msg_window.transient()
+
+    # Focus on the message window
+    msg_window.grab_set()
+    msg_window.focus()
+
+    # Make the window full screen
+    msg_window.attributes("-fullscreen", True)
 
 # DEF: WINDOW CLOSE
 def on_window_close(window, callback):
@@ -97,11 +133,11 @@ def capture_image():
     image_name = f"img-{current_time}.jpg"
 
     # 콘솔 명령어 실행하여 사진 촬영
-    command = f"libcamera-still -o /home/pi/dir/img/{image_name} --shutter 2222"
+    command = f"libcamera-still -o /home/pi/Ecoarium/img/{image_name}"
     subprocess.run(command, shell=True)
 
     # 이미지 파일의 전체 경로 반환
-    return f"/home/pi/dir/img/{image_name}"
+    return f"/home/pi/Ecoarium/img/{image_name}"
 
 def read_qr():
     # Function to handle QR code login
@@ -109,7 +145,7 @@ def read_qr():
     # Initialize video stream and allow camera sensor to warm up
     print("[INFO] Starting video stream...")
     vs = VideoStream(src=0).start()  # Use USB webcam
-    time.sleep(2.0)
+    time.sleep(1.0)
     
     start_time = time.time()  # Get the start time
     
@@ -179,39 +215,52 @@ def login():
                 user = response.json()
                 userId = user['id']
                 nickname = user['nickname']
-                show_msg_window("Welcome, " + nickname + "!", door_open)
+                show_msg_window("Welcome, " + nickname + "!", place_cup_open)
             except ValueError:
                 print("[ERROR] Invalid JSON format received from the server.")
                 login_button.config(state="normal")
                 return 4
 
-# DEF: After Login, Open the door
 def door_open():
+    time.sleep(0.5)
+    command = f"sudo /home/pi/Ecoarium/ecosys_door o"
+    subprocess.run(command, shell=True)
+
+def door_close():
+    time.sleep(0.5)
+    command = f"sudo /home/pi/Ecoarium/ecosys_door c"
+    subprocess.run(command, shell=True)
+
+# DEF: After Login, Open the door
+def place_cup_open():
     ### DOOR OPEN 작업 필요###### DOOR OPEN 작업 필요###### DOOR OPEN 작업 필요###### DOOR OPEN 작업 필요###### DOOR OPEN 작업 필요###### DOOR OPEN 작업 필요###### DOOR OPEN 작업 필요###
-    time.sleep(2.0)
-    show_msg_window("[INFO] Place the cup in the machine", door_close)
+    door_open()
+    show_msg_window("[INFO] Place the cup in the machine", place_cup_close)
     pass
 
 # DEF: After placing the cup in machine, Close the door and capture img
-def door_close():
+def place_cup_close():
     ### DOOR CLOSE 작업 필요###### DOOR CLOSE 작업 필요###### DOOR CLOSE 작업 필요###### DOOR CLOSE 작업 필요###### DOOR CLOSE 작업 필요###### DOOR CLOSE 작업 필요###### DOOR CLOSE 작업 필요###
-    time.sleep(2.0)
+    door_close()
     show_msg_window("[INFO] Take a picture of the cup.", capture_send_img)
     pass
 
+# DEF:
+def bring_cup_open():
+    ### DOOR OPEN 작업 필요###### DOOR OPEN 작업 필요###### DOOR OPEN 작업 필요###### DOOR OPEN 작업 필요###### DOOR OPEN 작업 필요###### DOOR OPEN 작업 필요###### DOOR OPEN 작업 필요###
+    door_open()
+    show_msg_window("[INFO] Bring the cup back", door_close)
+    login_button.config(state="normal")
+    pass
 
-##################################모델점수에따라 
 # DEF: capture img and send img
 def capture_send_img():
-    time.sleep(2.0)
     img_path = capture_image()
-    time.sleep(2.0)
     response = req_image(img_path)
     if response:
         score = float(response.strip())
         if score > 0.5:
-            show_msg_window("[INFO] This is not a suitable cup.")
-            login_button.config(state="normal")
+            show_msg_window("[INFO] This is not a suitable cup.", bring_cup_open)
             print("[INFO] Image Uploaded. RESPONSE:", response)
         else:
             show_msg_window("[INFO] Stamp save complete!")
@@ -237,6 +286,17 @@ def refresh():
     root.destroy()
     main()
 
+def show_admin_buttons():
+    global open_button, close_button
+    
+    # Create and place OPEN button
+    open_button = tk.Button(root, text="DOPEN", command=door_open, font=("Helvetica", 14), width=10, height=2)
+    open_button.place(relx=0.95, rely=0.35, anchor="ne")
+    
+    # Create and place CLOSE button
+    close_button = tk.Button(root, text="DCLOSE", command=door_close, font=("Helvetica", 14), width=10, height=2)
+    close_button.place(relx=0.95, rely=0.5, anchor="ne")
+
 def main():
     global root, login_button
     # Create main window
@@ -249,25 +309,29 @@ def main():
     window_height = 400
     screen_width = root.winfo_screenwidth()
     screen_height = root.winfo_screenheight()
-    x_coordinate = (screen_width / 2) - (window_width / 2)
-    y_coordinate = (screen_height / 2) - (window_height / 2)
+    x_coordinate = int((screen_width / 2) - (window_width / 2))
+    y_coordinate = int((screen_height / 2) - (window_height / 2))
     root.geometry("%dx%d+%d+%d" % (window_width, window_height, x_coordinate, y_coordinate))
     
     # Display "Ecoarium" text
-    label = tk.Label(root, text="Ecoarium", font=("Helvetica", 24))
-    label.place(relx=0.5, rely=0.3, anchor="center")
+    label = tk.Label(root, text="Ecoarium", font=("Helvetica", 32))
+    label.place(relx=0.5, rely=0.2, anchor="center")
     
-    # Create and place Quit button
-    quit_button = tk.Button(root, text="Quit", command=root.destroy)
-    quit_button.place(relx=0.95, rely=0.05, anchor="ne")
-    
-    # Create and place QR Login button
-    login_button = tk.Button(root, text="QR Login", command=login, width=20, height=5)
+    # QR Login Button
+    login_button = tk.Button(root, text="Login!", command=login, font=("Helvetica", 24), width=18, height=5)
     login_button.place(relx=0.5, rely=0.5, anchor="center")
     
-    # Create and place Refresh button
-    refresh_button = tk.Button(root, text="Refresh", command=refresh)
-    refresh_button.place(relx=0.05, rely=0.05, anchor="nw")
+    # Quit Button
+    quit_button = tk.Button(root, text="Quit", command=root.destroy, font=("Helvetica", 14), width=10, height=2)
+    quit_button.place(relx=0.95, rely=0.05, anchor="ne")
+    
+    # Refresh Button
+    refresh_button = tk.Button(root, text="Refresh", command=refresh, font=("Helvetica", 14), width=10, height=2)
+    refresh_button.place(relx=0.95, rely=0.20, anchor="ne")
+    
+    # Admin Button
+    admin_button = tk.Button(root, text="ADMIN", command=show_admin_buttons, font=("Helvetica", 14), width=10, height=2)
+    admin_button.place(relx=0.95, rely=0.35, anchor="ne")
     
     # Start event loop
     root.mainloop()
