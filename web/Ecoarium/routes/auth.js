@@ -269,7 +269,7 @@ router.post('/changePwMobile', isLoggedIn, async (req, res, next) => {
   });
 
   //계정 삭제 라우터
-  router.post('/withdrawal', isLoggedIn, async (req, res, next) => {
+  router.post('/withdrawalMobile', isLoggedIn, async (req, res, next) => {
     const { present_pw } = req.body;
     try {
       const result = await bcrypt.compare(present_pw, req.user.password);

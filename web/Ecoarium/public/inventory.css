@@ -189,6 +189,10 @@ body {
     margin: 20px;
     box-sizing: border-box;
 }
+.image{
+    width: 200px;
+    height: 200px;
+}
 .item-name{
     margin: 5px;
 }

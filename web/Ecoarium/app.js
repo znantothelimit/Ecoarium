@@ -12,6 +12,7 @@ const storeRouter = require('./routes/store');
 const mypageRouter = require('./routes/mypage');
 const inventoryRouter = require('./routes/inventory');
 const adminRouter = require('./routes/admin');
+const jtRouter = require('./routes/jt');
 const passportConfig = require('./passport');
 const { sequelize } = require('./models');
 const { isLoggedIn, isNotLoggedIn } = require('./routes/middlewares');
@@ -79,6 +80,7 @@ app.use('/store', storeRouter);
 app.use('/mypage', mypageRouter);
 app.use('/inventory', inventoryRouter);
 app.use('/admin', adminRouter);
+app.use('/jt', jtRouter);
 
 //에러처리
 app.use((req, res, next) => {
