@@ -24,6 +24,7 @@ server_pw = "q1w2e3"
 # USER INFO
 userId = "NaN"
 nickname = "NaN"
+userpoint = -1
 
 # DEF: Send QRCODE
 def req_qr(qrcode):
@@ -186,7 +187,7 @@ def read_qr():
 
 # DEF: LOGIN
 def login():
-    global nickname, userId, login_button
+    global nickname, userId, userpoint, login_button
     barcodeData = read_qr()
     if barcodeData == 3:
         show_msg_window("[ERROR CODE 3] Login timeout")
@@ -209,6 +210,7 @@ def login():
                 user = response.json()
                 userId = user['id']
                 nickname = user['nickname']
+                userpoint = user['points']
                 show_msg_window("Welcome, " + nickname + "!", place_cup_open)
             except ValueError:
                 print("[ERROR] Invalid JSON format received from the server.")
@@ -245,6 +247,7 @@ def bring_cup_open():
 
 # DEF: capture img and send img
 def capture_send_img():
+    global userpoint
     img_path = capture_image()
     response = req_image(img_path)
     if response:
@@ -253,7 +256,7 @@ def capture_send_img():
             show_msg_window("[INFO] This is not a suitable cup.", bring_cup_open)
             print("[INFO] Image Uploaded. RESPONSE:", response)
         else:
-            show_msg_window("[INFO] Stamp save complete!")
+            show_msg_window(f"[INFO] Stamp save complete! Stamp: {userpoint+1}")
             print("[INFO] Image Uploaded. RESPONSE:", response)
     else:
         show_msg_window("[ERROR] Failed to upload image.")
@@ -299,6 +302,42 @@ def show_admin_buttons():
     close_button.image = close_photo  # 참조 유지
     canvas.create_window(screen_width * 0.9, screen_height * 0.75, window=close_button)
 
+def aboutEcoarium():
+    # Create a new window
+    ecoarium_window = tk.Toplevel()
+    ecoarium_window.title("About Ecoarium")
+    
+    # Load Ecoarium image
+    ecoarium_image_path = f"{ecosys_path}/tkinter_img/ecosys_ecoarium.png"
+    ecoarium_image = Image.open(ecoarium_image_path)
+    ecoarium_image = ecoarium_image.resize((screen_width, screen_height), Image.ANTIALIAS)
+    ecoarium_photo = ImageTk.PhotoImage(ecoarium_image)
+    
+    # Display Ecoarium image on a label
+    ecoarium_label = tk.Label(ecoarium_window, image=ecoarium_photo)
+    ecoarium_label.pack(fill="both", expand=True)
+    
+    # Function to close the window when clicked
+    def close_window(event):
+        ecoarium_window.destroy()
+    
+    # Bind the close function to any mouse click event on the window
+    ecoarium_window.bind("<Button-1>", close_window)
+    
+    # Make the window full screen
+    ecoarium_window.attributes("-fullscreen", True)
+    
+    # Make sure the window is above the main window
+    ecoarium_window.transient()
+    
+    # Focus on the Ecoarium window
+    ecoarium_window.grab_set()
+    ecoarium_window.focus()
+
+    # Start the event loop for the Ecoarium window
+    ecoarium_window.mainloop()
+
+    
 
 def main():
     global root, login_button, canvas, screen_height, screen_width
@@ -339,6 +378,17 @@ def main():
     login_button.image = login_photo  # 참조 유지
     canvas.create_window(screen_width // 2, screen_height // 2, window=login_button)
 
+    # Load Ecoarium button image
+    ecoarium_image_path = f"{ecosys_path}/tkinter_img/ecosys_btn_ecoarium.png"
+    ecoarium_image = Image.open(ecoarium_image_path)
+    ecoarium_image = ecoarium_image.resize((100, 50), Image.ANTIALIAS)  # 필요에 따라 크기 조정
+    ecoarium_photo = ImageTk.PhotoImage(ecoarium_image)
+
+    # Ecoarium Button with image
+    ecoarium_button = tk.Button(root, image=ecoarium_photo, command=aboutEcoarium, width=100, height=50)
+    ecoarium_button.image = ecoarium_photo  # 참조 유지
+    canvas.create_window(screen_width * 0.9, screen_height * 0.15, window=ecoarium_button)
+
     # Load quit button image
     quit_image_path = f"{ecosys_path}/tkinter_img/ecosys_btn_quit.png"
     quit_image = Image.open(quit_image_path)
@@ -348,7 +398,7 @@ def main():
     # Quit Button with image
     quit_button = tk.Button(root, image=quit_photo, command=root.destroy, width=100, height=50)
     quit_button.image = quit_photo  # 참조 유지
-    canvas.create_window(screen_width * 0.9, screen_height * 0.15, window=quit_button)
+    canvas.create_window(screen_width * 0.9, screen_height * 0.3, window=quit_button)
 
     # Load refresh button image
     refresh_image_path = f"{ecosys_path}/tkinter_img/ecosys_btn_refresh.png"
@@ -359,7 +409,7 @@ def main():
     # Refresh Button with image
     refresh_button = tk.Button(root, image=refresh_photo, command=refresh, width=100, height=50)
     refresh_button.image = refresh_photo  # 참조 유지
-    canvas.create_window(screen_width * 0.9, screen_height * 0.30, window=refresh_button)
+    canvas.create_window(screen_width * 0.9, screen_height * 0.45, window=refresh_button)
 
     # Load admin button image
     admin_image_path = f"{ecosys_path}/tkinter_img/ecosys_btn_admin.png"
@@ -370,7 +420,7 @@ def main():
     # Admin Button with image
     admin_button = tk.Button(root, image=admin_photo, command=show_admin_buttons, width=100, height=50)
     admin_button.image = admin_photo  # 참조 유지
-    canvas.create_window(screen_width * 0.9, screen_height * 0.45, window=admin_button)
+    canvas.create_window(screen_width * 0.9, screen_height * 0.6, window=admin_button)
 
     # Start event loop
     root.mainloop()
