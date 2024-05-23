@@ -11,8 +11,11 @@ from pyzbar import pyzbar
 # Location INFO
 location = "JT_0"
 
+# Ecoarium file Installation path
+ecosys_path = "/home/pi/Ecoarium"
+
 # Server INFO
-server_addr = "http://172.20.10.10:8000"
+server_addr = "http://222.101.3.165:8000"
 server_addr_qrcode = server_addr + "/jt/QRCode"
 server_addr_img = server_addr + "/jt/determine"
 server_pw = "q1w2e3"
@@ -133,11 +136,11 @@ def capture_image():
     image_name = f"img-{current_time}.jpg"
 
     # 콘솔 명령어 실행하여 사진 촬영
-    command = f"libcamera-still -o /home/pi/Ecoarium/img/{image_name}"
+    command = f"libcamera-still -o {ecosys_path}/img/{image_name}"
     subprocess.run(command, shell=True)
 
     # 이미지 파일의 전체 경로 반환
-    return f"/home/pi/Ecoarium/img/{image_name}"
+    return f"{ecosys_path}/img/{image_name}"
 
 def read_qr():
     # Function to handle QR code login
@@ -223,12 +226,12 @@ def login():
 
 def door_open():
     time.sleep(0.5)
-    command = f"sudo /home/pi/Ecoarium/ecosys_door o"
+    command = f"sudo {ecosys_path}/ecosys_door o"
     subprocess.run(command, shell=True)
 
 def door_close():
     time.sleep(0.5)
-    command = f"sudo /home/pi/Ecoarium/ecosys_door c"
+    command = f"sudo {ecosys_path}/ecosys_door c"
     subprocess.run(command, shell=True)
 
 # DEF: After Login, Open the door
@@ -240,14 +243,12 @@ def place_cup_open():
 
 # DEF: After placing the cup in machine, Close the door and capture img
 def place_cup_close():
-    ### DOOR CLOSE 작업 필요###### DOOR CLOSE 작업 필요###### DOOR CLOSE 작업 필요###### DOOR CLOSE 작업 필요###### DOOR CLOSE 작업 필요###### DOOR CLOSE 작업 필요###### DOOR CLOSE 작업 필요###
     door_close()
     show_msg_window("[INFO] Take a picture of the cup.", capture_send_img)
     pass
 
 # DEF:
 def bring_cup_open():
-    ### DOOR OPEN 작업 필요###### DOOR OPEN 작업 필요###### DOOR OPEN 작업 필요###### DOOR OPEN 작업 필요###### DOOR OPEN 작업 필요###### DOOR OPEN 작업 필요###### DOOR OPEN 작업 필요###
     door_open()
     show_msg_window("[INFO] Bring the cup back", door_close)
     login_button.config(state="normal")
@@ -290,11 +291,11 @@ def show_admin_buttons():
     global open_button, close_button
     
     # Create and place OPEN button
-    open_button = tk.Button(root, text="DOPEN", command=door_open, font=("Helvetica", 14), width=10, height=2)
+    open_button = tk.Button(root, text="D OPEN", command=door_open, font=("Helvetica", 14), width=10, height=2)
     open_button.place(relx=0.95, rely=0.35, anchor="ne")
     
     # Create and place CLOSE button
-    close_button = tk.Button(root, text="DCLOSE", command=door_close, font=("Helvetica", 14), width=10, height=2)
+    close_button = tk.Button(root, text="D CLOSE", command=door_close, font=("Helvetica", 14), width=10, height=2)
     close_button.place(relx=0.95, rely=0.5, anchor="ne")
 
 def main():
