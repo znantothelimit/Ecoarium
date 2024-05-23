@@ -74,9 +74,24 @@ body {
     background-color: #00705e;
 }
 
+#findPW-button{
+    padding: 10px;
+    margin-left:45px;
+    cursor: pointer;
+    background-color: #ffffff;
+    color:#6b6b6b;
+    border: none;
+    float: left;
+}
+#line {
+    margin-top: 10px;
+    padding: 10px 0;
+    background-color: #ffffff;
+    border-left: 1px solid #dfdfdf;
+    float: left;
+}
 #join-button{
     padding: 10px;
-    margin-left:113px;
     cursor: pointer;
     background-color: #ffffff;
     color:#6b6b6b;
@@ -128,7 +143,17 @@ body {
     border-radius: 13px;
     box-sizing: border-box;
 }
-
+.text{
+    margin: 0 0 20px 0;
+    float: left;
+    font-size: 25px;
+    color:#000000;
+}
+#text2{
+    margin: 0 0 10px 0;
+    float: left;
+    color:#000000;
+}
 .typing-container {
     width: 280px;
     padding: 10px;
@@ -170,15 +195,6 @@ body {
     background-color: #00705e;
 }
 
-#join-button{
-    padding: 10px;
-    margin-left:113px;
-    cursor: pointer;
-    background-color: #ffffff;
-    color:#6b6b6b;
-    border: none;
-}
-
 #backtologin-button{
     padding: 10px;
     margin-left:120px;
@@ -186,6 +202,20 @@ body {
     background-color: #ffffff;
     color:#6b6b6b;
     border: none;
+}
+
+.change-button {
+    padding: 11px 114px;
+    margin: 30px 0px 20px 0px;
+    background-color: #01977F;
+    border: none;
+    border-radius: 13px;
+    color: #fff;
+    cursor: pointer;
+    font-size: 18px;
+}
+.change-button:hover {
+    background-color: #00705e;
 }
 
 .error-message{

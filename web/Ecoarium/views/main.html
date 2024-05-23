@@ -18,8 +18,8 @@
     <div class="main">
         <div id = "container">
             <div class = "area1" id = "area1">
-                <button id = "QRcode_button"></button>
                 <div id = "text">내 스탬프</div>
+                <button id = "QRcode_button">적립 QR</button>
                 <div id = "mypoint"></div>
             </div>
             <div class = "area2" id = "area2">
@@ -60,7 +60,7 @@
         const QRcode_cancel_button = document.createElement('button');
         QRcode_cancel_button.classList.add('cancel_button');
 
-        //바코드 생성
+        //QR 생성
         const qrcode = document.createElement('div');
         qrcode.setAttribute('id', 'QRcode');
         var QR = new QRCode(qrcode, {
@@ -95,7 +95,7 @@
 
         QRcode_cancel_button.addEventListener('click', async () => {
             try {
-                area1.insertBefore(QRcode_button, area1.firstChild);
+                area1.appendChild(QRcode_button);
                 text.innerText= "내 스탬프";
                 QRcode_cancel_button.remove();
                 area1.appendChild(mypoint);

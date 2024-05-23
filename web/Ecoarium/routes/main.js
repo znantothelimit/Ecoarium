@@ -43,7 +43,7 @@ router.get('/createpoint', isLoggedIn, async (req,res, next) => {
     }
 });
 
-//바코드 번호 생성
+//QR 생성
 router.get('/createQR', isLoggedIn, async (req,res, next) => {
     try{
         const id = req.user.id;

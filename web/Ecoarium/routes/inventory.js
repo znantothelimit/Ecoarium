@@ -6,7 +6,10 @@ const { isLoggedIn } = require('./middlewares');
 //프로필 불러오기
 router.get('/load-profile', isLoggedIn, async (req,res, next) => {
     try{
-        const user = req.user;
+        let user = req.user;
+        user = user.get({ plain: true });
+        delete user.password; delete user.email; delete user.QRcode; delete user.verifCode;
+        delete user.createdAt; delete user.updatedAt; delete user.deletedAt;
         const points = user.points;
 
         res.json({user, points});

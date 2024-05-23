@@ -74,14 +74,20 @@ body {
     border-bottom: 1px solid #e7e7e7;
 }
 #QRcode_button{
-    background-image: url('icons/QRcode.jpg');
+    background-image: url('icons/QRcode.png');
     background-repeat: no-repeat;
-    margin-top: 2px;
-    padding: 20px;
+    margin-top: 0px;
+    padding: 10px 20px 10px 60px;
+    font-size: 20px;
     background-color: #ffffff;
     border: 0px;
     float: left;
     cursor: pointer;
+    border: 1px solid #dfdfdf;
+    border-radius: 50px;
+}
+#QRcode_button:hover{
+    background-color: #f1f1f1;
 }
 #text{
     margin: 5px 10px 10px 10px;

@@ -13,11 +13,19 @@ module.exports = (sequelize, DataTypes) => (
         type: DataTypes.STRING(20),
         allowNull: true,
       },
+      email: {
+        type: DataTypes.STRING(40),
+        allowNull: true,
+      },
       points:{
         type: DataTypes.INTEGER(1),
         allowNull: true,
       },
       QRcode:{
+        type: DataTypes.STRING(40),
+        allowNull: true,
+      },
+      verifCode:{
         type: DataTypes.STRING(40),
         allowNull: true,
       },

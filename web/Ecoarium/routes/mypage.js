@@ -7,7 +7,10 @@ const { isLoggedIn } = require('./middlewares');
 //프로필 불러오기
 router.get('/load-profile', isLoggedIn, async (req,res, next) => {
     try{
-        const user = req.user;
+        let user = req.user;
+        user = user.get({ plain: true });
+        delete user.password; delete user.email; delete user.QRcode; delete user.verifCode;
+        delete user.createdAt; delete user.updatedAt; delete user.deletedAt;
         const points = user.points;
 
         res.json({user, points});
@@ -98,9 +101,9 @@ router.get('/load-all-partOfLogs', isLoggedIn, async (req,res, next) => {
         const offset = (page - 1) * limit;
         // SQL 쿼리
         const query = `
-            SELECT id, 'point_earning' AS type, location AS detail, createdAt FROM Point_earnings WHERE userId = :userId
+            SELECT id, 'point_earning' AS type, location AS detail, createdAt FROM point_earnings WHERE userId = :userId
             UNION ALL
-            SELECT id, 'point_usage' AS type, itemId AS detail, createdAt FROM Point_usages WHERE userId = :userId
+            SELECT id, 'point_usage' AS type, itemId AS detail, createdAt FROM point_usages WHERE userId = :userId
             ORDER BY createdAt DESC
             LIMIT :limit OFFSET :offset
         `;

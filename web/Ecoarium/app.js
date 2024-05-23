@@ -49,6 +49,9 @@ app.get('/', (req, res) => {
 app.get('/join', isNotLoggedIn, (req, res) => {
     res.render('join');
 });
+app.get('/findpw', isNotLoggedIn, (req, res) => {
+  res.sendFile(__dirname + '/views/findpw.html');
+});
 app.get('/store', isLoggedIn, (req, res) => {
     res.sendFile(__dirname + '/views/store.html');
 });

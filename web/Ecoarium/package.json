@@ -18,6 +18,7 @@
     "express-session": "^1.17.3",
     "multer": "^1.4.5-lts.1",
     "mysql2": "^3.6.5",
+    "nodemailer": "^6.9.13",
     "passport": "^0.7.0",
     "passport-local": "^1.0.0",
     "sequelize": "^6.35.1"

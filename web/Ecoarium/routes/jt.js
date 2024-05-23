@@ -25,7 +25,7 @@ router.post('/QRCode', async (req, res, next) => {
     if (key != process.env.JT_SECRET) return;
     try{
         const userId = QRCode.substring(0, String(QRCode).length - 23);
-        const user = await db.User.findOne({ where : {Id: userId} });
+        let user = await db.User.findOne({ where : {Id: userId} });
         const qrTime = parseInt(QRCode.slice(0, -10).slice(-13));
         const TimeOut = function() {
             const nowTime = new Date().getTime();
@@ -46,9 +46,18 @@ router.post('/QRCode', async (req, res, next) => {
         }
         else {
             // 유저 인증 성공
-            //user.password = null
-            res.json(user);
+            user = user.get({ plain: true });
+            delete user.password; delete user.QRcode; delete user.admin; delete user.verifCode;
+            delete user.createdAt; delete user.updatedAt; delete user.deletedAt;
             //디비 qr 제거
+            await db.User.update({
+                QRcode: null,
+                }, {
+                    where: {
+                        Id: user.id,
+                    }
+            });
+            res.json(user);
         }
     } catch (error) {
         console.error(error);
