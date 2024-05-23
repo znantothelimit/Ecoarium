@@ -1,4 +1,5 @@
 import tkinter as tk
+from PIL import Image, ImageTk
 import imutils
 import time
 import cv2
@@ -11,8 +12,11 @@ from pyzbar import pyzbar
 # Location INFO
 location = "JT_0"
 
+# Ecoarium file Installation path
+ecosys_path = "/home/pi/Ecoarium"
+
 # Server INFO
-server_addr = "http://172.20.10.10:8000"
+server_addr = "http://222.101.3.165:8000"
 server_addr_qrcode = server_addr + "/jt/QRCode"
 server_addr_img = server_addr + "/jt/determine"
 server_pw = "q1w2e3"
@@ -69,44 +73,34 @@ def show_msg_window(message, callback=None):
     msg_window = tk.Toplevel()
     msg_window.title("Message")
     
-    # Create a Label to measure the text width
-    temp_label = tk.Label(msg_window, text=message, font=("Helvetica", 24))
-    temp_label.pack()
-
-    # Update the window to get the correct size of the text
-    msg_window.update_idletasks()
+    # Load background image
+    msg_bg_image_path = f"{ecosys_path}/tkinter_img/ecosys_background_2.png"
+    msg_bg_image = Image.open(msg_bg_image_path)
+    msg_bg_image = msg_bg_image.resize((screen_width, screen_height), Image.ANTIALIAS)
+    msg_bg_photo = ImageTk.PhotoImage(msg_bg_image)
     
-    # Get the size of the text
-    text_width = temp_label.winfo_width()
-    text_height = temp_label.winfo_height()
-    
-    # Destroy the temporary label
-    temp_label.destroy()
 
-    # Calculate the window size based on the text size
-    window_width = max(text_width + 40, 800)  # Add some padding
-    window_height = max(text_height + 80, 480)  # Add some padding for the button
+    # Create a Canvas to hold the background image
+    canvas = tk.Canvas(msg_window, width=800, height=480)
+    canvas.pack(fill="both", expand=True)
+    canvas.create_image(0, 0, anchor="nw", image=msg_bg_photo)
 
-    text_label = tk.Label(msg_window, text=message, font=("Helvetica", 24), wraplength=window_width - 40)
+    # Create a Label to display the message text
+    text_label = tk.Label(msg_window, text=message, font=("Helvetica", 24), wraplength=760, bg="#F7F7F7")
     text_label.place(relx=0.5, rely=0.3, anchor="center")
+
+    # Load button image
+    ok_button_image_path = f"{ecosys_path}/tkinter_img/ecosys_btn_ok.png"
+    ok_button_image = Image.open(ok_button_image_path)
+    ok_button_image = ok_button_image.resize((200, 100), Image.ANTIALIAS)
+    ok_button_photo = ImageTk.PhotoImage(ok_button_image)
 
     if callback:
         # If a callback function is provided, execute it when the close button is clicked
-        close_button = tk.Button(msg_window, text="OK", command=lambda: on_window_close(msg_window, callback), width=20, height=2, font=("Helvetica", 14))
+        ok_button = tk.Button(msg_window, image=ok_button_photo, command=lambda: on_window_close(msg_window, callback), width=200, height=100)
     else:
-        close_button = tk.Button(msg_window, text="OK", command=msg_window.destroy, width=20, height=2, font=("Helvetica", 14))
-    close_button.place(relx=0.5, rely=0.7, anchor="center")  # Adjusted y-position for the button
-
-    # Get the screen size
-    screen_width = 800
-    screen_height = 480
-
-    # Calculate the position for the window to be centered
-    position_x = (screen_width // 2) - (window_width // 2)
-    position_y = (screen_height // 2) - (window_height // 2)
-
-    # Set the geometry of the message window
-    msg_window.geometry(f"{window_width}x{window_height}+{position_x}+{position_y}")
+        ok_button = tk.Button(msg_window, image=ok_button_photo, command=msg_window.destroy, width=200, height=100)
+    ok_button.place(relx=0.5, rely=0.7, anchor="center")  # Adjusted y-position for the button
 
     # Make sure the window is above the main window
     msg_window.transient()
@@ -117,6 +111,11 @@ def show_msg_window(message, callback=None):
 
     # Make the window full screen
     msg_window.attributes("-fullscreen", True)
+
+    # Start the event loop for the message window
+    msg_window.mainloop()
+
+
 
 # DEF: WINDOW CLOSE
 def on_window_close(window, callback):
@@ -133,11 +132,11 @@ def capture_image():
     image_name = f"img-{current_time}.jpg"
 
     # 콘솔 명령어 실행하여 사진 촬영
-    command = f"libcamera-still -o /home/pi/Ecoarium/img/{image_name}"
+    command = f"libcamera-still -o {ecosys_path}/img/{image_name}"
     subprocess.run(command, shell=True)
 
     # 이미지 파일의 전체 경로 반환
-    return f"/home/pi/Ecoarium/img/{image_name}"
+    return f"{ecosys_path}/img/{image_name}"
 
 def read_qr():
     # Function to handle QR code login
@@ -188,26 +187,21 @@ def read_qr():
 # DEF: LOGIN
 def login():
     global nickname, userId, login_button
-    login_button.config(state="disabled")  # 로그인 버튼 비활성화
     barcodeData = read_qr()
     if barcodeData == 3:
         show_msg_window("[ERROR CODE 3] Login timeout")
-        login_button.config(state="normal")
         return 3
     response = req_qr(barcodeData)
     # 정상적으로 응답이 오면 response에는 userdata가 담김
     if response:  # Check if response is not None
         if response.text == '1':
             show_msg_window("[ERROR CODE 1]User identification error")
-            login_button.config(state="normal")
             return 1
         elif response.text == '2':
             show_msg_window("[ERROR CODE 2]QR code mismatch")
-            login_button.config(state="normal")
             return 2
         elif response.text == '3':
             show_msg_window("[ERROR CODE 3]Login timeout")
-            login_button.config(state="normal")
             return 3
         else:
             # 로그인 성공
@@ -218,17 +212,16 @@ def login():
                 show_msg_window("Welcome, " + nickname + "!", place_cup_open)
             except ValueError:
                 print("[ERROR] Invalid JSON format received from the server.")
-                login_button.config(state="normal")
                 return 4
 
 def door_open():
     time.sleep(0.5)
-    command = f"sudo /home/pi/Ecoarium/ecosys_door o"
+    command = f"sudo {ecosys_path}/ecosys_door o"
     subprocess.run(command, shell=True)
 
 def door_close():
     time.sleep(0.5)
-    command = f"sudo /home/pi/Ecoarium/ecosys_door c"
+    command = f"sudo {ecosys_path}/ecosys_door c"
     subprocess.run(command, shell=True)
 
 # DEF: After Login, Open the door
@@ -240,17 +233,14 @@ def place_cup_open():
 
 # DEF: After placing the cup in machine, Close the door and capture img
 def place_cup_close():
-    ### DOOR CLOSE 작업 필요###### DOOR CLOSE 작업 필요###### DOOR CLOSE 작업 필요###### DOOR CLOSE 작업 필요###### DOOR CLOSE 작업 필요###### DOOR CLOSE 작업 필요###### DOOR CLOSE 작업 필요###
     door_close()
     show_msg_window("[INFO] Take a picture of the cup.", capture_send_img)
     pass
 
 # DEF:
 def bring_cup_open():
-    ### DOOR OPEN 작업 필요###### DOOR OPEN 작업 필요###### DOOR OPEN 작업 필요###### DOOR OPEN 작업 필요###### DOOR OPEN 작업 필요###### DOOR OPEN 작업 필요###### DOOR OPEN 작업 필요###
     door_open()
     show_msg_window("[INFO] Bring the cup back", door_close)
-    login_button.config(state="normal")
     pass
 
 # DEF: capture img and send img
@@ -264,11 +254,9 @@ def capture_send_img():
             print("[INFO] Image Uploaded. RESPONSE:", response)
         else:
             show_msg_window("[INFO] Stamp save complete!")
-            login_button.config(state="normal")
             print("[INFO] Image Uploaded. RESPONSE:", response)
     else:
         show_msg_window("[ERROR] Failed to upload image.")
-        login_button.config(state="normal")
         print("[ERROR] Failed to upload image.")
     pass
 
@@ -288,51 +276,102 @@ def refresh():
 
 def show_admin_buttons():
     global open_button, close_button
-    
-    # Create and place OPEN button
-    open_button = tk.Button(root, text="DOPEN", command=door_open, font=("Helvetica", 14), width=10, height=2)
-    open_button.place(relx=0.95, rely=0.35, anchor="ne")
-    
-    # Create and place CLOSE button
-    close_button = tk.Button(root, text="DCLOSE", command=door_close, font=("Helvetica", 14), width=10, height=2)
-    close_button.place(relx=0.95, rely=0.5, anchor="ne")
+
+    # Load open button image
+    open_image_path = f"{ecosys_path}/tkinter_img/ecosys_btn_dooropen.png"
+    open_image = Image.open(open_image_path)
+    open_image = open_image.resize((100, 50), Image.ANTIALIAS)  # 필요에 따라 크기 조정
+    open_photo = ImageTk.PhotoImage(open_image)
+
+    # Create and place OPEN button with image
+    open_button = tk.Button(root, image=open_photo, command=door_open, width=100, height=50)
+    open_button.image = open_photo  # 참조 유지
+    canvas.create_window(screen_width * 0.9, screen_height * 0.6, window=open_button)
+
+    # Load close button image
+    close_image_path = f"{ecosys_path}/tkinter_img/ecosys_btn_doorclose.png"
+    close_image = Image.open(close_image_path)
+    close_image = close_image.resize((100, 50), Image.ANTIALIAS)  # 필요에 따라 크기 조정
+    close_photo = ImageTk.PhotoImage(close_image)
+
+    # Create and place CLOSE button with image
+    close_button = tk.Button(root, image=close_photo, command=door_close, width=100, height=50)
+    close_button.image = close_photo  # 참조 유지
+    canvas.create_window(screen_width * 0.9, screen_height * 0.75, window=close_button)
+
 
 def main():
-    global root, login_button
+    global root, login_button, canvas, screen_height, screen_width
+
     # Create main window
     root = tk.Tk()
     root.title("Ecoarium")
-    
+
     # Set window size and position
     root.attributes('-fullscreen', True)
     window_width = 800
-    window_height = 400
+    window_height = 480
     screen_width = root.winfo_screenwidth()
     screen_height = root.winfo_screenheight()
     x_coordinate = int((screen_width / 2) - (window_width / 2))
     y_coordinate = int((screen_height / 2) - (window_height / 2))
     root.geometry("%dx%d+%d+%d" % (window_width, window_height, x_coordinate, y_coordinate))
-    
-    # Display "Ecoarium" text
-    label = tk.Label(root, text="Ecoarium", font=("Helvetica", 32))
-    label.place(relx=0.5, rely=0.2, anchor="center")
-    
-    # QR Login Button
-    login_button = tk.Button(root, text="Login!", command=login, font=("Helvetica", 24), width=18, height=5)
-    login_button.place(relx=0.5, rely=0.5, anchor="center")
-    
-    # Quit Button
-    quit_button = tk.Button(root, text="Quit", command=root.destroy, font=("Helvetica", 14), width=10, height=2)
-    quit_button.place(relx=0.95, rely=0.05, anchor="ne")
-    
-    # Refresh Button
-    refresh_button = tk.Button(root, text="Refresh", command=refresh, font=("Helvetica", 14), width=10, height=2)
-    refresh_button.place(relx=0.95, rely=0.20, anchor="ne")
-    
-    # Admin Button
-    admin_button = tk.Button(root, text="ADMIN", command=show_admin_buttons, font=("Helvetica", 14), width=10, height=2)
-    admin_button.place(relx=0.95, rely=0.35, anchor="ne")
-    
+
+    # Load background image
+    bg_image_path = f"{ecosys_path}/tkinter_img/ecosys_background_1.png"
+    bg_image = Image.open(bg_image_path)
+    bg_image = bg_image.resize((screen_width, screen_height), Image.ANTIALIAS)
+    bg_photo = ImageTk.PhotoImage(bg_image)
+
+    # Create canvas and set background image
+    canvas = tk.Canvas(root, width=screen_width, height=screen_height)
+    canvas.pack(fill="both", expand=True)
+    canvas.create_image(0, 0, anchor="nw", image=bg_photo)
+
+    # Load login button image
+    login_image_path = f"{ecosys_path}/tkinter_img/ecosys_btn_qrlogin.png"
+    login_image = Image.open(login_image_path)
+    login_image = login_image.resize((200, 100), Image.ANTIALIAS)  # 필요에 따라 크기 조정
+    login_photo = ImageTk.PhotoImage(login_image)
+
+    # QR Login Button with image
+    login_button = tk.Button(root, image=login_photo, command=login, width=200, height=100)
+    login_button.image = login_photo  # 참조 유지
+    canvas.create_window(screen_width // 2, screen_height // 2, window=login_button)
+
+    # Load quit button image
+    quit_image_path = f"{ecosys_path}/tkinter_img/ecosys_btn_quit.png"
+    quit_image = Image.open(quit_image_path)
+    quit_image = quit_image.resize((100, 50), Image.ANTIALIAS)  # 필요에 따라 크기 조정
+    quit_photo = ImageTk.PhotoImage(quit_image)
+
+    # Quit Button with image
+    quit_button = tk.Button(root, image=quit_photo, command=root.destroy, width=100, height=50)
+    quit_button.image = quit_photo  # 참조 유지
+    canvas.create_window(screen_width * 0.9, screen_height * 0.15, window=quit_button)
+
+    # Load refresh button image
+    refresh_image_path = f"{ecosys_path}/tkinter_img/ecosys_btn_refresh.png"
+    refresh_image = Image.open(refresh_image_path)
+    refresh_image = refresh_image.resize((100, 50), Image.ANTIALIAS)  # 필요에 따라 크기 조정
+    refresh_photo = ImageTk.PhotoImage(refresh_image)
+
+    # Refresh Button with image
+    refresh_button = tk.Button(root, image=refresh_photo, command=refresh, width=100, height=50)
+    refresh_button.image = refresh_photo  # 참조 유지
+    canvas.create_window(screen_width * 0.9, screen_height * 0.30, window=refresh_button)
+
+    # Load admin button image
+    admin_image_path = f"{ecosys_path}/tkinter_img/ecosys_btn_admin.png"
+    admin_image = Image.open(admin_image_path)
+    admin_image = admin_image.resize((100, 50), Image.ANTIALIAS)  # 필요에 따라 크기 조정
+    admin_photo = ImageTk.PhotoImage(admin_image)
+
+    # Admin Button with image
+    admin_button = tk.Button(root, image=admin_photo, command=show_admin_buttons, width=100, height=50)
+    admin_button.image = admin_photo  # 참조 유지
+    canvas.create_window(screen_width * 0.9, screen_height * 0.45, window=admin_button)
+
     # Start event loop
     root.mainloop()
 
