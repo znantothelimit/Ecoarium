@@ -171,6 +171,10 @@ def read_qr():
                 print("[INFO] Cleaning up...")
                 cv2.destroyAllWindows()
                 vs.stop()
+                # Check if the string starts and ends with "
+                if barcodeData.startswith('"') and barcodeData.endswith('"'):
+                    # If so, remove the first and last characters
+                    barcodeData = barcodeData[1:-1]
                 return barcodeData
             
         # Show the output frame
