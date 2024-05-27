@@ -2,9 +2,9 @@
 # Edit at https://www.toptal.com/developers/gitignore?templates=visualstudiocode,node,c
 
 # ecoarium
-Data_PlasticCup/
-Data_PlasticCup.7z
-raspberry_Ecoarium/img
+model/Data_PlasticCup/
+model/Data_PlasticCup.7z
+raspberry/img/
 
 ### C ###
 # Prerequisites
