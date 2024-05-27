@@ -186,15 +186,26 @@ body {
     border-bottom: 1px solid #e7e7e7;
 }
 .item{
-    margin: 20px;
+    padding: 20px;
+    margin: 20px 0;
     box-sizing: border-box;
+    background-color: #ffffff;
+    border: 0px solid;
+    border-radius: 13px;
+}
+.item:hover{
+    background-color: #f7f7f7;
 }
 .image{
     width: 200px;
     height: 200px;
+    float: left;
 }
 .item-name{
+    font-size: 15px;
     margin: 5px;
+    float: left;
+    clear: both;
 }
 .exchanged-time{
     margin: 0 0 5px 5px;
@@ -202,4 +213,32 @@ body {
     float: left;
     color:#9c9c9c;
     clear: both;
+}
+.detail-image{
+    width: 300px;
+    height: 300px;
+    margin: 60px 0 20px 0;
+    clear: both;
+    float: left;
+    border-radius: 30px;
+}
+.detail-name{
+    font-size: 20px;
+    margin-bottom: 20px;
+    text-align: center;
+    clear: both;
+}
+.barcode-container{
+    padding: 0 0 300px 17px;
+}
+.cancel_button{
+    background-image: url('icons/back.jpg');
+    background-repeat: no-repeat;
+    margin-top: 2px;
+    padding: 20px;
+    background-color: #ffffff;
+    border: 0px;
+    clear: both;
+    float: left;
+    cursor: pointer;
 }

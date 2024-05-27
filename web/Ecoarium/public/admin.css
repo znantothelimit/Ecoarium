@@ -75,7 +75,31 @@ body {
     box-sizing: border-box;
 }
 
-
+#typing-container {
+    width: 280px;
+    padding: 10px;
+    margin: 13px 10px 13px 30px;
+    border: 0px;
+    border-bottom: 2px solid #ccc;
+    font-size: 18px;
+}
+#typing-container:focus {
+    outline: none;
+    border-bottom: 2px solid #6b6b6b;
+}
+.btn{
+    margin: 0px 1px 0px 10px;
+    padding: 7px 13px;
+    background-color: #f7f7f7;
+    border: 1px solid #d6d6d6;
+    border-radius: 10px;
+    font-size: 15px;
+    color: #797979;
+    cursor: pointer;
+}
+.btn:hover{
+    background-color: #e8e8e8;
+}
 
 
 #store-container{
@@ -93,6 +117,8 @@ body {
     box-sizing: border-box;
 }
 .item-img {
+    width: 200px;
+    height: 200px;
     margin: 0 0px;
     float: left;
     clear: both;

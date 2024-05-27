@@ -40,6 +40,7 @@
         <div id = "inventory-container" class = "container">
         </div>
     </div>
+    <script src="https://cdn.jsdelivr.net/npm/jsbarcode@3.11.5/dist/JsBarcode.all.min.js"></script>
     <script>
         const area1 = document.getElementById("area1");
         const area2 = document.getElementById("area2");
@@ -54,6 +55,10 @@
         let page = 1;
         // 전체, 적립, 사용
         let select = 1;
+        // 상세 정보
+        let detail = false;
+        // 상세 정보 보기 전 사용 가능 목록
+        let availables;
 
         //프로필 불러오기
         fetch('/inventory/load-profile')
@@ -83,16 +88,67 @@
                 console.error('Error:', error);
             });
 
+        // 상세 정보 div
+        const detail_div = document.createElement('div');
+        detail_div.classList.add('items');
+        const item_detail = document.createElement('div');
+        detail_div.appendChild(item_detail);
+        //뒤로가기 버튼
+        const cancel_button = document.createElement('button');
+        cancel_button.classList.add('cancel_button');
+        cancel_button.addEventListener('click', async () => {
+            inventory_container.removeChild(detail_div);
+            inventory_container.appendChild(availables);
+        });
+        item_detail.appendChild(cancel_button);
+        //이미지
+        const detail_img = document.createElement('img');
+        detail_img.classList.add('detail-image');
+        item_detail.appendChild(detail_img);
+        //상품명
+        const detail_name = document.createElement('div');
+        detail_name.classList.add('detail-name');
+        item_detail.appendChild(detail_name);
+        //바코드;
+        const barcode_container = document.createElement('div');
+        barcode_container.classList.add('barcode-container');
+        item_detail.appendChild(barcode_container);
+        const svg = document.createElementNS('http://www.w3.org/2000/svg', 'svg');
+        svg.setAttribute('class', 'barcode-svg');
+        barcode_container.appendChild(svg);
 
+        // 상세 정보 수정
+        function Detail (myItem, info) {
+            detail_img.src = "uploads/" + info.img.slice(5);
+            detail_img.alt = info.name;
+            detail_name.innerText = info.name;
+            const formattedDisplayValue = myItem.code.match(/.{1,4}/g).join(' ');
+            JsBarcode(svg, myItem.code, {
+                format: "CODE128",
+                lineColor: "#000",
+                width: 2,
+                height: 100,
+                displayValue: true,
+                text: formattedDisplayValue
+            });
+        };
 
         //사용가능 생성 함수
         function available (available_items, items){
             const items_div = inventory_container.firstChild;
+            availables = items_div;
             available_items.forEach(each => {
                 //상품 종류
                 const kind = items.find(model => model.id == each.itemId);
                 //상품 생성
-                const item = document.createElement('div');
+                const item = document.createElement('button');
+                // 클릭 시 상세 정보
+                item.addEventListener('click', async () => {
+                    detail = true;
+                    inventory_container.removeChild(items_div);
+                    inventory_container.appendChild(detail_div);
+                    Detail(each, kind);
+                });
                 item.classList.add('item');
                 items_div.appendChild(item);
                 //이미지
@@ -159,6 +215,7 @@
 
         //사용가능 버튼
         available_btn.addEventListener('click', async () => {
+            detail = false;
             select = 1;
             page =1;
             available_btn.classList.remove("filter-btn");
@@ -181,6 +238,7 @@
 
         //사용완료 버튼
         completed_btn.addEventListener('click', async () => {
+            detail = false;
             select = 2;
             page =1;
             available_btn.classList.remove("filter-clicked-btn");
@@ -203,6 +261,7 @@
 
         // 스크롤 이벤트 리스너 추가
         window.addEventListener('scroll', () => {
+            if (detail) return;
             // 현재 스크롤 위치
             const scrollTop = window.scrollY || document.documentElement.scrollTop;
 
@@ -239,7 +298,6 @@
                 }
             }
         });
-
     </script>
 </body>
 </html>

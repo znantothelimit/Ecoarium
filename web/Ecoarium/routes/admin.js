@@ -45,6 +45,32 @@ router.post('/newitem', isLoggedIn, upload.single('img'), async (req, res) => {
     }
 });
 
+//상품 사용
+router.put('/use', isLoggedIn, async (req, res) => {
+    try{
+        if (req.user.admin != 1) return;
+        const item = await db.Inventory.findOne({where:{code: req.body.value}});
+        if (item && item.state == 1) {
+            await db.Inventory.update({
+                state: 0,
+            }, {
+                where: {
+                id:item.id,
+                }
+            });
+            res.json(true);
+        }
+        else {
+            res.json(false);
+        }
+    } catch (error) {
+        console.error(error);
+        return next(error);
+    }
+});
+
+
+
 //파이썬 연결 테스트
 router.post('/test', async (req, res, next) => {
     const {QRCode, key} = req.body;

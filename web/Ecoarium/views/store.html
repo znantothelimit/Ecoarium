@@ -60,8 +60,16 @@
                                         'Content-Type': 'application/json'
                                     },
                                     body: JSON.stringify({itemId}),
+                                })
+                                .then(response => response.json())
+                                .then(data => {
+                                    if (data == true) {
+                                        window.alert("구매 완료");
+                                    }
+                                    else {
+                                        window.alert("스탬프가 부족합니다.");
+                                    }
                                 });
-                                location.reload();
                             };
                         } catch (error) {
                             console.error(error);

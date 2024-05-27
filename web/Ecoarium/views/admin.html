@@ -18,13 +18,43 @@
     </div>
     <div class="main">
         <div class = "container">
+            <div id = "use-container">상품 사용
+                <input id="typing-container"></input>
+                <button id = "use-btn" class = "btn">사용</button>
+            </div>
+        </div>
+        <div class = "container">
             <div id = "store-container"></div>
         </div>
     </div>
     <script>
-        
-        //스토어 컨테이너
+        // 상품 사용
+        const use_btn = document.getElementById('use-btn');
+        use_btn.addEventListener('click', async () => {
+            try {
+                const value = document.getElementById('typing-container').value;
+                await fetch('/admin/use', {
+                    method: 'PUT',
+                    headers: {
+                        'Content-Type': 'application/json'
+                    },
+                    body: JSON.stringify({value}),
+                })
+                .then(response => response.json())
+                .then(data => {
+                    if (data == true) {
+                        window.alert("사용 완료");
+                    }
+                    else {
+                        window.alert("유효하지 않은 코드입니다.");
+                    }
+                });
+            } catch (error) {
+                console.error(error);
+            }
+        });
 
+        //스토어 컨테이너
         const store_container = document.getElementById('store-container');
 
         //생성 버튼

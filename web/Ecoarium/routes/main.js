@@ -14,6 +14,20 @@ router.get('/loadpoint', isLoggedIn, async (req,res, next) => {
     }
 });
 
+router.get('/loadPlasticStacks', isLoggedIn, async (req, res, next) => {
+    try {
+        const allStacks = await db.Point_earning.count();
+        const myStacks = await db.Point_earning.count({
+            where: {
+                userId: req.user.id,
+            }
+        });
+        res.json({ allStacks, myStacks });
+    } catch (error) {
+        next(error);
+    }
+});
+
 //포인트 생성 (디버깅용 임시)
 router.get('/createpoint', isLoggedIn, async (req,res, next) => {
     try{
