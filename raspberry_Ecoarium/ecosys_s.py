@@ -10,11 +10,9 @@ from imutils.video import VideoStream
 from pyzbar import pyzbar
 
 # Location INFO
-# 위치정보
 location = "JT_0"
 
 # Ecoarium file Installation path
-# 에코아리움 파일 설치 경로
 ecosys_path = "/home/pi/Ecoarium"
 
 # Server INFO
@@ -71,7 +69,6 @@ def req_image(img_path):
         return None
     
 
-# 프로그램 실행 시 각 단계를 출력하기 위한 함수
 def show_msg_window(message, callback=None):
     # Create the message window
     msg_window = tk.Toplevel()
@@ -185,31 +182,31 @@ def read_qr():
         key = cv2.waitKey(1) & 0xFF
         
         # Check if 10 seconds have passed
-        if time.time() - start_time > 20:
+        if time.time() - start_time > 15:
             # Clean up
             print("[INFO] Cleaning up...")
             cv2.destroyAllWindows()
             vs.stop()
-            return 5  # 반환값이 5일 경우, QR 인식시간 초과 에러
+            return 3  # TimeOut
 
 # DEF: LOGIN
 def login():
     global nickname, userId, userpoint, login_button
     barcodeData = read_qr()
-    if barcodeData == 5:
-        show_msg_window("[ERROR CODE 5] 20초 안에 QR코드를 입력하세요")
-        return 5
+    if barcodeData == 3:
+        show_msg_window("[ERROR CODE 3] Login timeout")
+        return 3
     response = req_qr(barcodeData)
     # 정상적으로 응답이 오면 response에는 userdata가 담김
     if response:  # Check if response is not None
         if response.text == '1':
-            show_msg_window("[ERROR CODE 1] 승인되지 않은 유저입니다.")
+            show_msg_window("[ERROR CODE 1]User identification error")
             return 1
         elif response.text == '2':
-            show_msg_window("[ERROR CODE 2] 잘못된 QR 코드입니다.")
+            show_msg_window("[ERROR CODE 2]QR code mismatch")
             return 2
         elif response.text == '3':
-            show_msg_window("[ERROR CODE 3] 로그인 타임아웃. 새로 변경된 QR 코드를 입력하세요.")
+            show_msg_window("[ERROR CODE 3]Login timeout")
             return 3
         else:
             # 로그인 성공
@@ -218,7 +215,7 @@ def login():
                 userId = user['id']
                 nickname = user['nickname']
                 userpoint = user['points']
-                show_msg_window(f"안녕하세요, {nickname}님! 현재 스탬프는 {userpoint}개 입니다.", place_cup_open)
+                show_msg_window("Welcome, " + nickname + "!", place_cup_open)
             except ValueError:
                 print("[ERROR] Invalid JSON format received from the server.")
                 return 4
@@ -237,19 +234,19 @@ def door_close():
 def place_cup_open():
     ### DOOR OPEN 작업 필요###### DOOR OPEN 작업 필요###### DOOR OPEN 작업 필요###### DOOR OPEN 작업 필요###### DOOR OPEN 작업 필요###### DOOR OPEN 작업 필요###### DOOR OPEN 작업 필요###
     door_open()
-    show_msg_window("[INFO] 열린 문 내부로 플라스틱 컵을 놓아주세요.", place_cup_close)
+    show_msg_window("[INFO] Place the cup in the machine", place_cup_close)
     pass
 
 # DEF: After placing the cup in machine, Close the door and capture img
 def place_cup_close():
     door_close()
-    show_msg_window("[INFO] 플라스틱 컵의 사진을 촬영합니다.", capture_send_img)
+    show_msg_window("[INFO] Take a picture of the cup.", capture_send_img)
     pass
 
 # DEF:
 def bring_cup_open():
     door_open()
-    show_msg_window("[INFO] 플라스틱 컵을 다시 회수해 주세요.", door_close)
+    show_msg_window("[INFO] Bring the cup back", door_close)
     pass
 
 # DEF: capture img and send img
@@ -260,13 +257,13 @@ def capture_send_img():
     if response:
         score = float(response.strip())
         if score > 0.5:
-            show_msg_window("[INFO] 수거가 불가능한 플라스틱 컵입니다.", bring_cup_open)
+            show_msg_window("[INFO] This is not a suitable cup.", bring_cup_open)
             print("[INFO] Image Uploaded. RESPONSE:", response)
         else:
-            show_msg_window(f"[INFO] 스탬프 저장이 완료되었습니다!\n현재 {userpoint+1}개의 스탬프를 모았어요.")
+            show_msg_window(f"[INFO] Stamp save complete! Stamp: {userpoint+1}")
             print("[INFO] Image Uploaded. RESPONSE:", response)
     else:
-        show_msg_window("[ERROR] 이미지 업로드 실패. 관리자 확인 요망")
+        show_msg_window("[ERROR] Failed to upload image.")
         print("[ERROR] Failed to upload image.")
     pass
 
@@ -343,6 +340,8 @@ def aboutEcoarium():
 
     # Start the event loop for the Ecoarium window
     ecoarium_window.mainloop()
+
+    
 
 def main():
     global root, login_button, canvas, screen_height, screen_width
